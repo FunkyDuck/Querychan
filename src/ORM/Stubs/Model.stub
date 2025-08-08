@@ -1,0 +1,17 @@
+<?php
+
+namespace Querychan\Models;
+
+use Querychan\ORM\Model;
+use Querychan\ORM\SchemaBuilder;
+
+class {{$modelName}} extends Model {
+    protected static string $table = '{{$lowerModelName}}';
+
+    protected static function schema(): SchemaBuilder {
+        $schema = new SchemaBuilder();
+        $schema->id();
+        $schema->varchar('name', 255)->notNull();
+        return $schema;
+    }
+}

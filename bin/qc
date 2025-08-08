@@ -1,0 +1,22 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use Querychan\CLI\CommandDispatcher;
+use Querychan\ORM\Database;
+
+$argv = $_SERVER['argv'];
+$argc = $_SERVER['argc'];
+
+if($argc < 2) {
+    echo "!! No command found !!\n\tqc:create -> Create a Table Model\n\tqc:migrate -> Migrate data\n\tqc:refresh -> Reset database (DROP + CREATE + MIGRATE)\n\tqc:status -> View database status\n\n";
+    exit(1);
+}
+
+$command = $argv[1];
+
+Database::connect();
+
+$dispatcher = new CommandDispatcher();
+$dispatcher->handle($command, array_slice($argv, 2));

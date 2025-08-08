@@ -1,0 +1,43 @@
+# Composer
+/vendor/
+composer.lock
+
+# IDEs
+/.idea/
+/.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# PHPStorm/NetBeans/Sublime/other editors
+*.sublime-*
+*.swp
+*.bak
+*.tmp
+
+# PHPUnit
+/phpunit.xml
+/phpunit.xml.dist
+/tests/output/
+
+# Cache & runtime
+.cache/
+tmp/
+storage/
+.env
+
+# Coverage reports
+coverage/
+
+# SQLite (dev DB)
+*.sqlite
+*.sqlite3
+
+# Misc
+node_modules/
+.env.*
+*.tgz
