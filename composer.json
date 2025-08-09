@@ -1,7 +1,7 @@
 {
     "name": "funkyduck/querychan",
     "description": "A lightweight ActiveRecord-style ORM for PHP",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "type": "library",
     "license": "MIT",
     "autoload": {
@@ -12,5 +12,8 @@
     "require": {
         "php": ">=8.1",
         "vlucas/phpdotenv": "^5.6"
-    }
+    },
+    "bin": [
+        "bin/qc"
+    ]
 }
