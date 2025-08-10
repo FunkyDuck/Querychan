@@ -6,10 +6,7 @@ use Dotenv\Dotenv;
 
 class EnvLoader {
     public static function load() {
-        $path = __DIR__ . '/../../';
-        if(!file_exists($path . '.env')) {
-            $path = '/../../../../../../';
-        }
+        $path = getcwd() . DIRECTORY_SEPARATOR . '.env';
         $dotenv = Dotenv::createImmutable($path);
         $dotenv->load();
     }
