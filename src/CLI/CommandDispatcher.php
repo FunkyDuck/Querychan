@@ -45,7 +45,7 @@ class CommandDispatcher {
 
         $modelName = ucfirst($name);
         $lowerModelName = strtolower($modelName);
-        $modelDir = __DIR__ . '/../../src/Models/';
+        $modelDir = getcwd() . '/src/Models/';
         $stubPath = __DIR__ . '/../../src/ORM/Stubs/Model.stub';
         $timestamp = time();
         $filepath = $modelDir . $timestamp . '-' . $modelName . '.php';
@@ -76,7 +76,7 @@ class CommandDispatcher {
     }
 
     private function migrate() {
-        $modelsPath = __DIR__ . '/../../src/Models';
+        $modelsPath = getcwd() . '/src/Models';
 
         if(!is_dir($modelsPath)) {
             echo "!! No models directory found.\n";

@@ -4,7 +4,7 @@ namespace Querychan\ORM;
 
 class Utils {
     public static function getPackageVersion(): ?string {
-        $composerFile = __DIR__ . "/../../composer.json";
+        $composerFile =  __DIR__. "/../../composer.json";
         if(!file_exists($composerFile)) {
             return null;
         }
