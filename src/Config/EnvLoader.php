@@ -8,7 +8,7 @@ class EnvLoader {
     public static function load() {
         $path = __DIR__ . '/../../';
         if(!file_exists($path . '.env')) {
-            $path = '/../../../../../';
+            $path = '/../../../../../../';
         }
         $dotenv = Dotenv::createImmutable($path);
         $dotenv->load();
