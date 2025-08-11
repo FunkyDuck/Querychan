@@ -27,6 +27,12 @@ class SchemaBuilder {
         return $column;
     }
 
+    public function bigint(string $name): ColumnBuilder {
+        $column = new ColumnBuilder($name, "BIGINT");
+        $this->columns[] = $column;
+        return $column;
+    }
+
     public function char(string $name, int $length): ColumnBuilder {
         $column = new ColumnBuilder($name, "CHAR($length)");
         $this->columns[] = $column;
@@ -41,6 +47,12 @@ class SchemaBuilder {
 
     public function text(string $name): ColumnBuilder {
         $column = new ColumnBuilder($name, "TEXT");
+        $this->columns[] = $column;
+        return $column;
+    }
+
+    public function json(string $name): ColumnBuilder {
+        $column = new ColumnBuilder($name, "JSON");
         $this->columns[] = $column;
         return $column;
     }
