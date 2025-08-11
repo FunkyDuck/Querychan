@@ -24,7 +24,10 @@ class ColumnBuilder {
     }
 
     public function default(string|int|null $value): self {
-        if(is_string($value)) {
+        if(is_string($value) && strtoupper($value) === "CURRENT_TIMESTAMP") {
+            $val = "CURRENT_TIMESTAMP";
+        }
+        elseif(is_string($value)) {
             $val = "'" . addslashes($value) . "'";
         }
         elseif($value === null) {

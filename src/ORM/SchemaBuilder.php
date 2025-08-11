@@ -7,16 +7,21 @@ use PDO;
 class SchemaBuilder {
     /** @var ColumnBuilder[] */
     private array $columns = [];
+    private array $indexes = [];
     private array $foreignKeys = [];
     
     public function toSql(string $table): string {
         $colsSql = array_map(fn($col) => $col->getDefinition(), $this->columns);
         $columnsSql = implode(",\n ", $colsSql);
         $foreignSql = implode(",\n ", $this->foreignKeys);
+        $indexesSql = implode(",\n ", $this->indexes);
         
         $sql = "CREATE TABLE IF NOT EXISTS `$table` (\n $columnsSql";
         if(!empty($foreignSql)) {
             $sql .= ",\n $foreignSql";
+        }
+        if(!empty($indexesSql)) {
+            $sql .= ",\n $indexesSql";
         }
         $sql .= "\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
 
@@ -114,8 +119,22 @@ class SchemaBuilder {
         return $this;
     }
     
-    public function foreign(string $column, string $refTable, string $refColumn, string $onDelete = 'CASCADE', string $onUpdate = 'CASCADE') {
+    public function foreign(string $column, string $refTable, string $refColumn, string $onDelete = 'CASCADE', string $onUpdate = 'CASCADE'): self {
         $this->foreignKeys[] = "FOREIGN KEY (`$column`) REFERENCES `$refTable`(`$refColumn`) ON DELETE $onDelete ON UPDATE $onUpdate";
+        return $this;
+    }
+
+    public function index(string|array $columns): self {
+        $cols = is_array($columns) ? $columns : [$columns];
+        $cols = array_map(fn($c) => "`$c`", $cols);
+        $this->indexes[] = "INDEX (" . implode(", ", $cols) . ")";
+        return $this;
+    }
+    
+    public function uniqueIndex(string|array $columns): self {
+        $cols = is_array($columns) ? $columns : [$columns];
+        $cols = array_map(fn($c) => "`$c`", $cols);
+        $this->indexes[] = "UNIQUE (" . implode(", ", $cols) . ")";    
         return $this;
     }
 }
