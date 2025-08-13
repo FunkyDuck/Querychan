@@ -1,0 +1,17 @@
+<?php
+
+namespace Querychan\Growers;
+
+use Querychan\ORM\QueryBuilder;
+
+class {{$modelName}} {
+    public function run() {
+        $array = [
+            'title' => 'My Title',
+            'name' => 'My Name',
+        ];
+
+        $query = new QueryBuilder('{{$modelName}}');
+        $query->insert($array);
+    }
+}

@@ -13,14 +13,18 @@ class CommandDispatcher {
         if($cmd[0] === 'create' && $cmd[1] === 'model') {
             $this->createTable($args[0]);
         }
-        elseif($cmd[0] === 'create' && $cmd[1] === 'grow') {}
+        elseif($cmd[0] === 'create' && $cmd[1] === 'grower') {
+            $this->createGrower($args[0]);
+        }
         elseif($cmd[0] === 'migrate' && !isset($cmd[1])) {
             $this->migrate();
         }
         elseif($cmd[0] === 'migrate' && $cmd[1] === 'refresh') {
             $this->refresh();
         }
-        elseif($cmd[0] === 'migrate' && $cmd[1] === 'grow') {}
+        elseif($cmd[0] === 'migrate' && $cmd[1] === 'grower') {
+            $this->grow();
+        }
         elseif($cmd[0] === 'status' && !isset($cmd[1])) {
             $this->status();
         }
@@ -37,12 +41,12 @@ class CommandDispatcher {
 
     private function createTable($name) {
         if(empty($name)) {
-            echo "Table name not found...\nUsage : qc:create TableName\n\n";
+            echo "Table name not found...\nUsage : create:model TableName\n\n";
             return;
         }
 
-        $modelName = ucfirst($name);
-        $lowerModelName = strtolower($modelName);
+        $modelName = Utils::toTitleCase($name);
+        $lowerModelName = Utils::titleToSnake($modelName);
         $modelDir = getcwd() . '/src/Models/';
         $stubPath = __DIR__ . '/../../src/ORM/Stubs/Model.stub';
         $timestamp = time();
@@ -73,6 +77,43 @@ class CommandDispatcher {
         echo "Table Model [$modelName] created.\n\n";
     }
 
+    private function createGrower($name) {
+        if(empty($name)) {
+            echo "Grower name not found...\nUsage : create:grower GrowerName\n\n";
+            return;
+        }
+
+        $modelName = Utils::toTitleCase($name);
+        $lowerModelName = Utils::titleToSnake($modelName);
+        $modelDir = getcwd() . '/src/Growers/';
+        $stubPath = __DIR__ . '/../../src/ORM/Stubs/Grower.stub';
+        $filepath = $modelDir . $modelName . '.php';
+
+        if(file_exists($filepath)) {
+            echo "!! A grower have already this name : $modelName.\n\n";
+            return;
+        }
+        
+        if(!is_dir($modelDir)) {
+            mkdir($modelDir, 0755, true);
+        }
+
+        if(!file_exists($stubPath)) {
+            echo("!! Stub not found.\n\n");
+            return;
+        }
+
+        $template = file_get_contents($stubPath);
+        $content = str_replace(
+            ['{{$modelName}}', '{{$lowerModelName}}'],
+            [$modelName, $lowerModelName],
+            $template
+        );
+
+        file_put_contents($filepath, $content);
+        echo "Table Grower [$modelName] created.\n\n";
+    }
+
     private function migrate() {
         $modelsPath = getcwd() . '/src/Models';
 
@@ -89,6 +130,17 @@ class CommandDispatcher {
         Migrator::dropTables();
         echo "Drop tables :: OK\n";
         self::migrate();
+    }
+
+    private function grow() {
+        $modelsPath = getcwd() . '/src/Growers';
+
+        if(!is_dir($modelsPath)) {
+            echo "!! No models directory found.\n";
+            return;
+        }
+
+        Migrator::growTable($modelsPath);
     }
 
     private function status() {
@@ -146,10 +198,10 @@ class CommandDispatcher {
         
         echo "\t\033[1mCommands you can run :\033[0m\n";
         echo "\t\033[94mcreate:model    \033[0m► Build a new Table Model\n";
-        // echo "\t\033[94mcreate:grow     \033[0m► Make a new db grower (data filler)\n";
+        echo "\t\033[94mcreate:grower     \033[0m► Make a new db grower (data filler)\n";
         echo "\t\033[94mmigrate         \033[0m► Run migrations\n";
         echo "\t\033[94mmigrate:refresh \033[0m► Reset DB (DROP + CREATE + MIGRATE)\n";
-        // echo "\t\033[94mmigrate:grow    \033[0m► Seed that DB (add data)\n";
+        echo "\t\033[94mmigrate:grower    \033[0m► Seed that DB (add data)\n";
         echo "\t\033[94mstatus          \033[0m► Check db status\n";
         echo "\t\033[94mabout           \033[0m► About Querychan\n";
 

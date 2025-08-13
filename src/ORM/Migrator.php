@@ -44,4 +44,35 @@ class Migrator {
             $db->query("DROP TABLE IF EXISTS `$table`");
         }
     }
+
+    public static function growTable(string $modelPath): void {
+        echo ":: Start Grower ::\n";
+        $files = glob($modelPath . '/*.php');
+
+        foreach ($files as $file) {
+            try {
+                require_once $file;
+
+                $filename = pathinfo($file, PATHINFO_FILENAME);
+
+                $fqcn = "Querychan\\Growers\\$filename";
+
+                if (class_exists($fqcn)) {
+                    $model = new $fqcn();
+
+                    var_dump($model);
+                    
+                    if (method_exists($fqcn, 'run')) {
+                        $model->run();
+                    }
+                }
+                echo "\tGrow Table : $filename\n";
+            } catch (\Throwable $th) {
+                echo "\t!! Fail to growing Table : $filename\n";
+                echo "\tError: " . $th->getMessage() . "\n";
+                echo "[$fqcn :: $filename]\n";
+            }
+        }
+        echo ":: End Grower ::\n\n";
+    }
 }
