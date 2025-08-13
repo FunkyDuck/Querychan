@@ -41,3 +41,7 @@ coverage/
 node_modules/
 .env.*
 *.tgz
+
+# Folders projects
+/src/Models
+/src/Growers

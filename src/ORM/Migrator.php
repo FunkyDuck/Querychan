@@ -55,14 +55,20 @@ class Migrator {
 
                 $filename = pathinfo($file, PATHINFO_FILENAME);
 
-                $fqcn = "Querychan\\Growers\\$filename";
+                $declaredClasses = get_declared_classes();
+                $classFound = null;
 
-                if (class_exists($fqcn)) {
-                    $model = new $fqcn();
+                foreach ($declaredClasses as $class) {
+                    if (str_ends_with($class, "\\$filename") && str_contains($class, "Querychan\\Growers\\")) {
+                        $classFound = $class;
+                        break;
+                    }
+                }
 
-                    var_dump($model);
+                if ($classFound !== null) {
+                    $model = new $classFound;
                     
-                    if (method_exists($fqcn, 'run')) {
+                    if (method_exists($model, 'run')) {
                         $model->run();
                     }
                 }
@@ -70,7 +76,6 @@ class Migrator {
             } catch (\Throwable $th) {
                 echo "\t!! Fail to growing Table : $filename\n";
                 echo "\tError: " . $th->getMessage() . "\n";
-                echo "[$fqcn :: $filename]\n";
             }
         }
         echo ":: End Grower ::\n\n";

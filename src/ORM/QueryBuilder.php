@@ -71,7 +71,7 @@ class QueryBuilder {
     }
 
     public function insert(array $data): bool {
-        $table = $this->modelClass::getTable();
+        $table = is_string($this->modelClass) ? $this->modelClass : $this->modelClass::getTable();
         $columns = array_keys($data);
         $placeholders = array_map(fn($col) => ":$col", $columns);
 
