@@ -1,6 +1,6 @@
 <?php
 
-namespace Querychan\Config;
+namespace FunkyDuck\Querychan\Config;
 
 use Dotenv\Dotenv;
 

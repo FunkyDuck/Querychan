@@ -1,8 +1,8 @@
 <?php
 
-namespace Querychan\Growers;
+namespace FunkyDuck\Querychan\Growers;
 
-use Querychan\ORM\QueryBuilder;
+use FunkyDuck\Querychan\ORM\QueryBuilder;
 
 class {{$modelName}} {
     public function run() {

@@ -1,10 +1,11 @@
 <?php
 
-namespace Querychan\CLI;
+namespace FunkyDuck\Querychan\CLI;
 
-use Querychan\ORM\Database;
-use Querychan\ORM\Migrator;
-use Querychan\ORM\Utils;
+use FunkyDuck\Querychan\ORM\Database;
+use FunkyDuck\Querychan\ORM\Migrator;
+use FunkyDuck\Querychan\ORM\Utils;
+use FunkyDuck\NijiEcho\NijiEcho;
 
 class CommandDispatcher {
     public function handle(string $command, array $args = []) {
@@ -28,10 +29,7 @@ class CommandDispatcher {
         elseif($cmd[0] === 'status' && !isset($cmd[1])) {
             $this->status();
         }
-        elseif($cmd[0] === 'version' && !isset($cmd[1])) {
-            $this->version();
-        }
-        elseif($cmd[0] === 'about' && !isset($cmd[1])) {
+        elseif(($cmd[0] === 'about' || $cmd[0] === 'version') && !isset($cmd[1])) {
             $this->about();
         }
         else {
@@ -147,35 +145,27 @@ class CommandDispatcher {
         Database::connect();
         $info = Database::status();
         
-        echo "(=^‥^=) Database Status\n";
-        echo "\tConnection :: " . ($info['connected'] ? "OK" : "X") . "\n";
-        echo "\tVersion :: {$info['version']}\n";
-        echo "\tTables ::\n";
+        echo "\t" . NijiEcho::text("(=^‥^=) Database Status")->color('light_green') . "\n";
+        echo "\t" . NijiEcho::text("Connection :: ") . NijiEcho::text(($info['connected'] ? " OK " : " X "))->background($info['connected'] ? 'green' : 'red') . "\n";
+        echo "\t" . NijiEcho::text("Version :: {$info['version']}") . "\n";
+        echo "\t" . NijiEcho::text("Tables ::") . "\n";
         if(count($info['tables']) === 0) {
-            echo "\t !! Tables not found !!\t";
+            echo "\t\t" . NijiEcho::text("!! Tables not found !!")->color("red") . "\n";
         }
         else {
             foreach($info['tables'] as $tab) {
-                echo "\t  >> $tab\n";
+                echo "\t\t" . NijiEcho::text("🗂️   $tab") . "\n";
             }
         }
     }
-
-    private function version() {
-        echo "\033[1m\033[92m(=^‥^=) Querychan version\033[0m\n";
-        $version = Utils::getPackageVersion();
-        if(!$version) {
-            echo "\t\033[041!! Version not found !!\033[0m\n";
-            return;
-        } 
-        
-        echo "\tVersion :: $version\n";
-    }
     
     private function about() {
-        $version = Utils::getPackageVersion();
-        echo "\033[1m\033[92m(=^‥^=) About Querychan\033[0m\n";
-        echo "\tDeveloped by \033[94mLoïc Jacques - FunkyDuck.\033[0m\n\tWebsite: \033[94mhttps://funkyduck.be \033[0m\n\tVersion: \033[94m$version\033[0m\n\tMaking your DB kawaii since 2025 🍙";
+        $version = Utils::getPackageVersion() ?? 'DEV';
+        echo "\t" . NijiEcho::text("(=^‥^=) About Querychan")->color('light_green') . "\n";
+        echo "\t" . NijiEcho::text("Developed by ") . NijiEcho::text("Loïc Jacques - FunkyDuck.")->color('light_blue') . "\n";
+        echo "\t" . NijiEcho::text("Website: ") . NijiEcho::text("https://funkyduck.be")->color('light_blue') . "\n";
+        echo "\t" . NijiEcho::text("Version: ") . NijiEcho::text($version)->color('light_blue') . "\n";
+        echo "\t" . NijiEcho::text("Making your DB kawaii since 2025 🍙")->color('cyan') . "\n";
     }
 
     public function displayCommands() {
@@ -192,18 +182,18 @@ class CommandDispatcher {
         
         EOT;
         echo "\033[0m\n";
-
-        echo "\t\033[41m!! COMMAND NOT FOUND !!\033[0m\n\n";
-        echo "\t\033[1m\033[92m:::: Querychan CLI ::::\033[0m\n\n";
         
-        echo "\t\033[1mCommands you can run :\033[0m\n";
-        echo "\t\033[94mcreate:model    \033[0m► Build a new Table Model\n";
-        echo "\t\033[94mcreate:grower     \033[0m► Make a new db grower (data filler)\n";
-        echo "\t\033[94mmigrate         \033[0m► Run migrations\n";
-        echo "\t\033[94mmigrate:refresh \033[0m► Reset DB (DROP + CREATE + MIGRATE)\n";
-        echo "\t\033[94mmigrate:grower    \033[0m► Seed that DB (add data)\n";
-        echo "\t\033[94mstatus          \033[0m► Check db status\n";
-        echo "\t\033[94mabout           \033[0m► About Querychan\n";
+        echo "\t" . NijiEcho::text("!! COMMAND NOT FOUND !!")->color('white')->background('red') . "\n\n";
+        echo "\t" . NijiEcho::text(":::: Querychan CLI ::::")->color("green") . "\n\n";
+        
+        echo "\t" . NijiEcho::text("Commands you can run :")->color('white') . "\n";
+        echo "\t" . NijiEcho::text("create:model")->color("light_blue") . "\t" . NijiEcho::text("► Build a new Table Model") . "\n";
+        echo "\t" . NijiEcho::text("create:grower")->color("light_blue") . "\t" . NijiEcho::text("► Make a new db grower (data filler)") . "\n";
+        echo "\t" . NijiEcho::text("migrate")->color("light_blue") . "\t\t" . NijiEcho::text("► Run migrations") . "\n";
+        echo "\t" . NijiEcho::text("migrate:refresh")->color("light_blue") . "\t" . NijiEcho::text("► Reset DB (DROP + CREATE + MIGRATE)") . "\n";
+        echo "\t" . NijiEcho::text("migrate:grower")->color("light_blue") . "\t" . NijiEcho::text("► Seed that DB (add data)") . "\n";
+        echo "\t" . NijiEcho::text("status")->color("light_blue") . "\t\t" . NijiEcho::text("► Check db status") . "\n";
+        echo "\t" . NijiEcho::text("about")->color("light_blue") . "\t\t" . NijiEcho::text("► About Querychan") . "\n";
 
         return;
     }

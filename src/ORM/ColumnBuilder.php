@@ -1,6 +1,6 @@
 <?php
 
-namespace Querychan\ORM;
+namespace FunkyDuck\Querychan\ORM;
 
 class ColumnBuilder {
     private string $definition;

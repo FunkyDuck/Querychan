@@ -7,8 +7,8 @@ if(!file_exists($autoload)) {
 }
 require_once $autoload;
 
-use Querychan\CLI\CommandDispatcher;
-use Querychan\ORM\Database;
+use FunkyDuck\Querychan\CLI\CommandDispatcher;
+use FunkyDuck\Querychan\ORM\Database;
 
 $argv = $_SERVER['argv'];
 $argc = $_SERVER['argc'];

@@ -1,8 +1,8 @@
 <?php
 
-namespace Querychan\ORM;
+namespace FunkyDuck\Querychan\ORM;
 
-use Querychan\ORM\Database;
+use FunkyDuck\Querychan\ORM\Database;
 use PDO;
 
 class QueryBuilder {
@@ -42,7 +42,7 @@ class QueryBuilder {
         $sql = "SELECT * FROM `$table`";
         $params = [];
 
-        if($this->where) {
+        if(!empty($this->where)) {
             $conditions = [];
             foreach ($this->where as $col => $val) {
                 $conditions[] = "$col = :$col";
@@ -70,7 +70,13 @@ class QueryBuilder {
         return $results;
     }
 
-    public function insert(array $data): bool {
+    public function first(): ?object {
+        $this->limit(1);
+        $results = $this->get();
+        return $results[0] ?? null;
+    }
+
+    public function insert(array $data): int|false {
         $table = is_string($this->modelClass) ? $this->modelClass : $this->modelClass::getTable();
         $columns = array_keys($data);
         $placeholders = array_map(fn($col) => ":$col", $columns);
@@ -82,6 +88,43 @@ class QueryBuilder {
             $stmt->bindValue(":$col", $val);
         }
 
+        if($stmt->execute()) {
+            return (int)Database::get()->lastInsertId();
+        }
+        return false;
+    }
+
+    public function update(array $where, array $data): bool {
+        $table = is_string($this->modelClass) ? $this->modelClass : $this->modelClass::getTable();
+
+        $setClauses = [];
+        foreach (array_keys($data) as $col) {
+            $setClauses[] = "`$col` = :set_$col";
+        }
+        $setString = implode(', ', $setClauses);
+
+        $whereClauses = [];
+        foreach (array_keys($where) as $col) {
+            $whereClauses[] = "`$col` = :where_$col";
+        }
+        $whereString = implode(' AND ', $whereClauses);
+
+        $sql = "UPDATE `$table` SET $setString WHERE $whereString";
+        $stmt = Database::get()->prepare($sql);
+
+        foreach($data as $col => $val) {
+            $stmt->bindValue(":set__$col", $val);
+        }
+
+        foreach($where as $col => $val) {
+            $stmt->bindValue(":where__$col", $val);
+        }
+
         return $stmt->execute();
+    }
+
+    public function delete(array $data): bool {
+        $table = is_string($this->modelClass) ? $this->modelClass : $this->modelClass::getTable();
+        return false;
     }
 }

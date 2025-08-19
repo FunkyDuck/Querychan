@@ -1,13 +1,14 @@
 <?php
 
-namespace Querychan\ORM;
+namespace FunkyDuck\Querychan\ORM;
 
-use Querychan\ORM\Database;
+use FunkyDuck\Querychan\ORM\Database;
+use FunkyDuck\NijiEcho\NijiEcho;
 use PDO;
 
 class Migrator {
     public static function migrateModels(string $modelPath): void {
-        echo ":: Start Migration ::\n";
+        echo NijiEcho::info(":: Start Migration ::") . "\n";
         $files = glob($modelPath . '/*.php');
 
         foreach ($files as $file) {
@@ -27,13 +28,13 @@ class Migrator {
                         $model->migrate();
                     }
                 }
-                echo "\tMigrate Table : $className\n";
+                echo NijiEcho::success("\tMigrate Table : $className") . "\n";
             } catch (\Throwable $th) {
-                echo "\t!! Fail to migrate Table : $className\n";
-                echo "\tError: " . $th->getMessage() . "\n";
+                echo NijiEcho::error("\t!! Fail to migrate Table : $className") . "\n";
+                echo NijiEcho::error("\tError: " . $th->getMessage()) . "\n";
             }
         }
-        echo ":: End Migration ::\n\n";
+        echo NijiEcho::info(":: End Migration ::") . "\n\n";
     }
 
     public static function dropTables(): void {
@@ -46,7 +47,7 @@ class Migrator {
     }
 
     public static function growTable(string $modelPath): void {
-        echo ":: Start Grower ::\n";
+        echo NijiEcho::info(":: Start Grower ::") . "\n";
         $files = glob($modelPath . '/*.php');
 
         foreach ($files as $file) {
@@ -72,12 +73,12 @@ class Migrator {
                         $model->run();
                     }
                 }
-                echo "\tGrow Table : $filename\n";
+                echo NijiEcho::success("\tGrow Table : $filename") . "\n";
             } catch (\Throwable $th) {
-                echo "\t!! Fail to growing Table : $filename\n";
-                echo "\tError: " . $th->getMessage() . "\n";
+                echo NijiEcho::error("\t!! Fail to growing Table : $filename") . "\n";
+                echo NijiEcho::error("\tError: " . $th->getMessage()) . "\n";
             }
         }
-        echo ":: End Grower ::\n\n";
+        echo NijiEcho::info(":: End Grower ::") . "\n\n";
     }
 }

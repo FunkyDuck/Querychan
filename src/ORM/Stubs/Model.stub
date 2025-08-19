@@ -1,9 +1,9 @@
 <?php
 
-namespace Querychan\Models;
+namespace FunkyDuck\Querychan\Models;
 
-use Querychan\ORM\Model;
-use Querychan\ORM\SchemaBuilder;
+use FunkyDuck\Querychan\ORM\Model;
+use FunkyDuck\Querychan\ORM\SchemaBuilder;
 
 class {{$modelName}} extends Model {
     protected static string $table = '{{$lowerModelName}}';

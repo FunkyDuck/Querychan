@@ -2,9 +2,9 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use Querychan\ORM\Database;
-use Querychan\ORM\Model;
-use Querychan\Config\EnvLoader;
+use FunkyDuck\Querychan\ORM\Database;
+use FunkyDuck\Querychan\ORM\Model;
+use FunkyDuck\Querychan\Config\EnvLoader;
 
 
 // Load ENV var

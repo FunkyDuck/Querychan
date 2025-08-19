@@ -1,9 +1,9 @@
 <?php
 
-namespace Querychan\ORM;
+namespace FunkyDuck\Querychan\ORM;
 
 use PDO;
-use Querychan\Config\EnvLoader;
+use FunkyDuck\Querychan\Config\EnvLoader;
 
 class Database {
     protected static ?PDO $connection = null;

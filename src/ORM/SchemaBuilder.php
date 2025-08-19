@@ -1,6 +1,6 @@
 <?php
 
-namespace Querychan\ORM;
+namespace FunkyDuck\Querychan\ORM;
 
 use PDO;
 

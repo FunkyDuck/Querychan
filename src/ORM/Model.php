@@ -1,10 +1,10 @@
 <?php
 
-namespace Querychan\ORM;
+namespace FunkyDuck\Querychan\ORM;
 
-use Querychan\ORM\Database;
-use Querychan\ORM\SchemaBuilder;
-use Querychan\ORM\QueryBuilder;
+use FunkyDuck\Querychan\ORM\Database;
+use FunkyDuck\Querychan\ORM\SchemaBuilder;
+use FunkyDuck\Querychan\ORM\QueryBuilder;
 use PDO;
 
 abstract class Model {
@@ -24,34 +24,32 @@ abstract class Model {
     }
 
     public static function find(int $id): ?static {
-        $table = static::getTable();
-        $stmt = Database::get()->prepare("SELECT * FROM `$table` WHERE id = :id LIMIT 1");
-        $stmt->execute(['id' => $id]);
-
-        $data = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $data ? new static($data) : null;
+        return (new QueryBuilder(static::class))->where('id', $id)->first();
     }
 
     public static function where(string $column, $value): QueryBuilder {
         return (new QueryBuilder(static::class))->where($column, $value);
     }
 
-    public function save(): void {
-        $table = static::getTable();
-        $columns = array_keys($this->attributes);
-        $data = $this->attributes;
+    public function save(): bool {
+        $builder = new QueryBuilder(static::class);
+        $attributes = $this->attributes;
 
-        if(isset($data['id'])) {
-            $setClause = implode(', ', array_map(fn($col) => "$col = :$col", $columns));
-            $stmt = Database::get()->prepare("UPDATE `$table` SET $setClause WHERE id = :id");
+        if(isset($attributes['id'])) {
+            // UPDATE
+            $where = ['id' => $attributes['id']];
+            unset($attributes['id']);
+            return $builder->update($where, $attributes);
         }
         else {
-            $fields = implode(', ', $columns);
-            $placeholders = implode(', ', array_map(fn($col) => ":$col", $columns));
-            $stmt = Database::get()->prepare("INSERT INTO `$table` ($fields) VALUES ($placeholders)");
+            // INSERT
+            $newId = $builder->insert($attributes);
+            if($newId) {
+                $this->id = $newId;
+                return true;
+            }
+            return false;
         }
-
-        $stmt->execute($data);
     }
 
     public static function migrate(): void {
@@ -64,7 +62,12 @@ abstract class Model {
     }
 
     protected static function getTable(): string {
-        return static::$table ?? strtolower(static::class) . 's';
+        if(isset(static::$table)) {
+            return static::$table;
+        }
+
+        $parts = explode('\\', static::class);
+        return strtolower(end($parts)) . 's';
     }
 
     abstract protected static function schema(): SchemaBuilder;

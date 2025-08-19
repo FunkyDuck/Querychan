@@ -1,17 +1,17 @@
 {
     "name": "funkyduck/querychan",
     "description": "A lightweight ActiveRecord-style ORM for PHP",
-    "version": "0.2.0",
     "type": "library",
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Querychan\\": "src/"
+            "FunkyDuck\\Querychan\\": "src/"
         }
     },
     "require": {
         "php": ">=8.1",
-        "vlucas/phpdotenv": "^5.6"
+        "vlucas/phpdotenv": "^5.6",
+        "funkyduck/nijiecho": "^0.2.0"
     },
     "bin": [
         "bin/qc"
