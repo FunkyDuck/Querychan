@@ -147,6 +147,7 @@ class CommandDispatcher {
         
         echo "\t" . NijiEcho::text("(=^‥^=) Database Status")->color('light_green') . "\n";
         echo "\t" . NijiEcho::text("Connection :: ") . NijiEcho::text(($info['connected'] ? " OK " : " X "))->background($info['connected'] ? 'green' : 'red') . "\n";
+        echo "\t" . NijiEcho::text("Driver :: {$info['driver']}") . "\n";
         echo "\t" . NijiEcho::text("Version :: {$info['version']}") . "\n";
         echo "\t" . NijiEcho::text("Tables ::") . "\n";
         if(count($info['tables']) === 0) {

@@ -6,7 +6,8 @@ use Dotenv\Dotenv;
 
 class EnvLoader {
     public static function load() {
-        $dotenv = Dotenv::createImmutable(getcwd());
+        $projectRoot = __DIR__ . '/../../';
+        $dotenv = Dotenv::createImmutable($projectRoot);
         $dotenv->load();
     }
 }

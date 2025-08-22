@@ -3,45 +3,65 @@
 namespace FunkyDuck\Querychan\ORM;
 
 class ColumnBuilder {
-    private string $definition;
+    protected string $name;
+    protected string $type;
+    public array $options = [];
 
-    public function __construct(string $name, string $type) {
-        $this->definition = "`$name` $type";
+    public function __construct(string $name, string $type) 
+    {
+        $this->name = $name;
+        $this->type = $type;
     }
 
-    public function getDefinition(): string {
-        return $this->definition;
-    }
-
-    public function nullable(): self {
-        $this->definition .= " NULL";
+    public function notNull(): static 
+    {
+        $this->options['nullable'] = false;
         return $this;
     }
 
-    public function notNull(): self {
-        $this->definition .= " NOT NULL";
+    public function default($value): static 
+    {
+        $this->options['default'] = $value;
         return $this;
     }
 
-    public function default(string|int|null $value): self {
-        if(is_string($value) && strtoupper($value) === "CURRENT_TIMESTAMP") {
-            $val = "CURRENT_TIMESTAMP";
-        }
-        elseif(is_string($value)) {
-            $val = "'" . addslashes($value) . "'";
-        }
-        elseif($value === null) {
-            $val = "NULL";
-        }
-        else {
-            $val = $value;
-        }
-        $this->definition .= " DEFAULT $val";
-        return $this;
-    }
+    public function toSql(string $driver): string 
+    {
+        $sql = "`{$this->name}`";
 
-    public function unique(): self {
-        $this->definition .= " UNIQUE";
-        return $this;
+        switch($this->type) {
+            case 'id':
+                return $driver === 'sqlite'
+                    ? '`id` INTEGER PRIMARY KEY AUTOINCREMENT'
+                    : '`id` INT AUTO_INCREMENT PRIMARY KEY';
+            case 'varchar':
+                $length = $this->options['length'] ?? 255;
+                $sql .= " VARCHAR($length)";
+                break;
+            case 'enum': 
+                $values = $this->options['values'] ?? [];
+                $allowed = implode(', ', array_map(fn($v) => "'$v'", $values));
+                if($driver === 'sqlite') {
+                    $sql .= " TEXT CHECK(`{$this->name}` IN ($allowed))";
+                }
+                else {
+                    $sql .= " ENUM($allowed)";
+                }
+                break;
+            case 'timestamp':
+                $sql .= $driver === 'sqlite' ? 'DATETIME' : 'TIMESTAMP';
+                break;
+        }
+
+        if(isset($this->options['nullable']) && $this->options['nullable'] === false) {
+            $sql .= ' NOT NULL';
+        }
+
+        if(isset($this->options['default'])) {
+            $defaultValue = is_string($this->options['default']) ? "'{$this->options['default']}'" : $this->options['default'];
+            $sql .= " DEFAULT {$defaultValue}";
+        }
+
+        return $sql;
     }
 }

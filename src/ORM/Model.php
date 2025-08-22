@@ -61,7 +61,7 @@ abstract class Model {
         Database::get()->exec($sql);
     }
 
-    protected static function getTable(): string {
+    public static function getTable(): string {
         if(isset(static::$table)) {
             return static::$table;
         }

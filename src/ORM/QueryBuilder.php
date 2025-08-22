@@ -21,7 +21,6 @@ class QueryBuilder {
     }
 
     public function orderBy(string $column, string $direction = 'ASC'): static {
-        $column = htmlspecialchars($column);
         $direction = strtoupper($direction);
         $direction = ($direction !== 'ASC' && $direction !== 'DESC') ? 'ASC' : $direction;
         $this->orderBy = "$column $direction";
@@ -77,7 +76,7 @@ class QueryBuilder {
     }
 
     public function insert(array $data): int|false {
-        $table = is_string($this->modelClass) ? $this->modelClass : $this->modelClass::getTable();
+        $table = $this->modelClass::getTable();
         $columns = array_keys($data);
         $placeholders = array_map(fn($col) => ":$col", $columns);
 
@@ -95,7 +94,7 @@ class QueryBuilder {
     }
 
     public function update(array $where, array $data): bool {
-        $table = is_string($this->modelClass) ? $this->modelClass : $this->modelClass::getTable();
+        $table = $this->modelClass::getTable();
 
         $setClauses = [];
         foreach (array_keys($data) as $col) {
@@ -124,7 +123,7 @@ class QueryBuilder {
     }
 
     public function delete(array $data): bool {
-        $table = is_string($this->modelClass) ? $this->modelClass : $this->modelClass::getTable();
+        $table = $this->modelClass::getTable();
         return false;
     }
 }
