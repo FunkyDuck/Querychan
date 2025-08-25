@@ -47,11 +47,10 @@ class CommandDispatcher {
         $lowerModelName = Utils::titleToSnake($modelName);
         $modelDir = getcwd() . '/src/Models/';
         $stubPath = __DIR__ . '/../../src/ORM/Stubs/Model.stub';
-        $timestamp = time();
-        $filepath = $modelDir . $timestamp . '-' . $modelName . '.php';
+        $filepath = $modelDir . $modelName . '.php';
 
         if(file_exists($filepath)) {
-            echo "!! A model have already this name : $timestamp-$modelName.\n\n";
+            echo "!! A model have already this name : $modelName.\n\n";
             return;
         }
         

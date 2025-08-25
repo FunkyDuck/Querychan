@@ -1,0 +1,29 @@
+<?php
+
+use FunkyDuck\Querychan\ORM\Database;
+use FunkyDuck\Querychan\ORM\SchemaBuilder;
+
+return new class {
+    /**
+     * Run migration
+     */
+    public function up(): void {
+        $schema = new SchemaBuilder();
+
+        $schema->id();
+        $schema->varchar('name', 128)->notNull();
+        // Add others columns here
+        $schema->timestamps();
+
+        // Create table
+        $sql = $schema->toSql('{{$tableName}}');
+        Database::get()->exec($sql);
+    }
+
+    /**
+     * Reverse migration
+     */
+    public function down(): void {
+        Database::dropTableIfExists('{{$tableName}}');
+    }
+};

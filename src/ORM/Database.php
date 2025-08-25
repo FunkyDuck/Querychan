@@ -4,7 +4,6 @@ namespace FunkyDuck\Querychan\ORM;
 
 use FunkyDuck\NijiEcho\NijiEcho;
 use PDO;
-use FunkyDuck\Querychan\Config\EnvLoader;
 
 class Database {
     protected static ?PDO $connection = null;
@@ -77,5 +76,20 @@ class Database {
             'version' => $version,
             'tables' => $tables
         ];
+    }
+
+    public static function dropTableIfExists(string $table): void {
+        echo "\t" . NijiEcho::info("Try to remove `$table` table...") . "\n";
+
+        $sql = "DROP TABLE IF EXISTS `$table`;";
+
+        try {
+            $pdo = self::get();
+            $pdo->exec($sql);
+
+            echo "\t" . NijiEcho::success("Table `$table` dropped successfully.") . "\n";
+        } catch (\Throwable $th) {
+            echo "\t" . NijiEcho::error("ERROR WITH DROP TABLE `$table` !") . "\n";
+        }
     }
 }
