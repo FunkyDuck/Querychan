@@ -122,8 +122,21 @@ class QueryBuilder {
         return $stmt->execute();
     }
 
-    public function delete(array $data): bool {
+    public function delete(array $where): bool {
         $table = $this->modelClass::getTable();
-        return false;
+
+        $whereClauses = [];
+        foreach (array_keys($where) as $col) {
+            $whereClauses[] = "`$col` = :where_$col";
+        }
+        $whereString = implode(' AND ', $whereClauses);
+
+        $sql = "DELETE FROM `$table` WHERE $whereString";
+        $stmt = Database::get()->prepare($sql);
+
+        foreach($where as $col => $val) {
+            $stmt->bindValue(":where_$col", $val);
+        }
+        return $stmt->execute();
     }
 }

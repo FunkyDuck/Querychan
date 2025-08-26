@@ -52,6 +52,17 @@ abstract class Model {
         }
     }
 
+    public function delete(): bool {
+        if(!isset($this->attributes['id'])) {
+            return false;
+        }
+
+        $builder = new QueryBuilder((static::class));
+        $where = ['id' => $this->id];
+
+        return $builder->delete($where);
+    }
+
     public static function migrate(): void {
         $table = static::getTable();
         $schema = static::schema();
