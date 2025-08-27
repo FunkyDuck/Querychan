@@ -63,23 +63,25 @@ abstract class Model {
         return $builder->delete($where);
     }
 
-    public static function migrate(): void {
-        $table = static::getTable();
-        $schema = static::schema();
-
-        $sql = $schema->toSql($table);
-
-        Database::get()->exec($sql);
-    }
-
+    // TODO :: REMOVE COMMENTS LINE
+    // public static function migrate(): void {
+        //     $table = static::getTable();
+        //     $schema = static::schema();
+        
+        //     $sql = $schema->toSql($table);
+        
+        //     Database::get()->exec($sql);
+        // }
+        
     public static function getTable(): string {
         if(isset(static::$table)) {
             return static::$table;
         }
-
+            
         $parts = explode('\\', static::class);
         return strtolower(end($parts)) . 's';
     }
-
-    abstract protected static function schema(): SchemaBuilder;
+        
+    // TODO :: REMOVE COMMENTS LINES
+    // abstract protected static function schema(): SchemaBuilder;
 }
