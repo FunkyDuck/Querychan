@@ -12,10 +12,13 @@ class CommandDispatcher {
         $cmd = explode(':', $command);
 
         if($cmd[0] === 'create' && $cmd[1] === 'model') {
-            $this->createTable($args[0]);
+            $this->createModel($args[0] ?? null);
+        }
+        elseif($cmd[0] === 'create' && $cmd[1] === 'migration') {
+            $this->createMigration($args[0] ?? null);
         }
         elseif($cmd[0] === 'create' && $cmd[1] === 'grower') {
-            $this->createGrower($args[0]);
+            $this->createGrower($args[0] ?? null);
         }
         elseif($cmd[0] === 'migrate' && !isset($cmd[1])) {
             $this->migrate();
@@ -37,9 +40,9 @@ class CommandDispatcher {
         }
     }
 
-    private function createTable($name) {
+    private function createModel($name) {
         if(empty($name)) {
-            echo "Table name not found...\nUsage : create:model TableName\n\n";
+            echo "\t" . NijiEcho::warning("Model name not found...") . "\n\t" . NijiEcho::info("Usage : create:model ModelName") . "\n\n";
             return;
         }
 
@@ -50,65 +53,106 @@ class CommandDispatcher {
         $filepath = $modelDir . $modelName . '.php';
 
         if(file_exists($filepath)) {
-            echo "!! A model have already this name : $modelName.\n\n";
+            echo "\t" . NijiEcho::warning("!! A model have already this name : $modelName") . "\n\n";
             return;
         }
         
         if(!is_dir($modelDir)) {
             mkdir($modelDir, 0755, true);
         }
-
+        
         if(!file_exists($stubPath)) {
-            echo("!! Stub not found.\n\n");
+            echo "\t" . NijiEcho::error("!! Model.stub not found") . "\n\n";
             return;
         }
-
+        
         $template = file_get_contents($stubPath);
         $content = str_replace(
             ['{{$modelName}}', '{{$lowerModelName}}'],
             [$modelName, $lowerModelName],
             $template
         );
-
+        
         file_put_contents($filepath, $content);
-        echo "Table Model [$modelName] created.\n\n";
+        echo "\t" . NijiEcho::success("Model [$modelName] created") . "\n\n";
+        $migrationName = "create_{$lowerModelName}_table";
+        $this->createMigration($migrationName);
     }
-
-    private function createGrower($name) {
+    
+    private function createMigration($name) {
         if(empty($name)) {
-            echo "Grower name not found...\nUsage : create:grower GrowerName\n\n";
+            echo "\t" . NijiEcho::warning("Migration name not found...") . "\n\t" . NijiEcho::info("Usage : create:migration MigrationName") . "\n\n";
+            return;
+        }
+        // $modelName = Utils::toTitleCase($name);
+        // $lowerModelName = Utils::titleToSnake($modelName);
+        $modelDir = getcwd() . '/database/migrations/';
+        $stubPath = __DIR__ . '/../../src/ORM/Stubs/Migration.stub';
+        $filepath = $modelDir . time() . '_' . $name . '.php';
+        
+        if(file_exists($filepath)) {
+            echo "\t" . NijiEcho::warning("!! A migration have already this name : $name") . "\n\n";
+            return;
+        }
+        
+        if(!is_dir($modelDir)) {
+            mkdir($modelDir, 0755, true);
+        }
+        
+        if(!file_exists($stubPath)) {
+            echo "\t" . NijiEcho::error("!! Migration.stub not found") . "\n\n";
             return;
         }
 
+        $tableName = 'default_table';
+        // Match with create migrations
+        if(preg_match('/^create_(.*)_table$/', $name, $matches)) {
+            $tableName = $matches[1];
+        }
+        // TODO :: Others migrations type
+        
+        $template = file_get_contents($stubPath);
+        $content = str_replace('{{$tableName}}', $tableName, $template);
+        
+        file_put_contents($filepath, $content);
+        echo "\t" . NijiEcho::success("Migration [$name] created") . "\n\n";
+    }
+    
+    private function createGrower($name) {
+        if(empty($name)) {
+            echo "\t" . NijiEcho::warning("Grower name not found...") . "\n\t" . NijiEcho::info("Usage : create:grower GrowerName") . "\n\n";
+            return;
+        }
+        
         $modelName = Utils::toTitleCase($name);
         $lowerModelName = Utils::titleToSnake($modelName);
         $modelDir = getcwd() . '/src/Growers/';
         $stubPath = __DIR__ . '/../../src/ORM/Stubs/Grower.stub';
         $filepath = $modelDir . $modelName . '.php';
-
+        
         if(file_exists($filepath)) {
-            echo "!! A grower have already this name : $modelName.\n\n";
+            echo "\t" . NijiEcho::warning("!! A grower have already this name : $modelName") . "\n\n";
             return;
         }
         
         if(!is_dir($modelDir)) {
             mkdir($modelDir, 0755, true);
         }
-
+        
         if(!file_exists($stubPath)) {
-            echo("!! Stub not found.\n\n");
+            echo "\t" . NijiEcho::error("!! Grower.stub not found") . "\n\n";
             return;
         }
-
+        
         $template = file_get_contents($stubPath);
         $content = str_replace(
             ['{{$modelName}}', '{{$lowerModelName}}'],
             [$modelName, $lowerModelName],
             $template
         );
-
+        
         file_put_contents($filepath, $content);
-        echo "Table Grower [$modelName] created.\n\n";
+        echo "\t" . NijiEcho::success("Table Grower [$modelName] created") . "\n\n";
     }
 
     private function migrate() {

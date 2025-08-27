@@ -20,8 +20,7 @@ Thumbs.db
 *.tmp
 
 # PHPUnit
-/phpunit.xml
-/phpunit.xml.dist
+.phpunit.cache/
 /tests/output/
 
 # Cache & runtime
@@ -29,6 +28,7 @@ Thumbs.db
 tmp/
 storage/
 .env
+.env.*
 
 # Coverage reports
 coverage/
@@ -39,9 +39,9 @@ coverage/
 
 # Misc
 node_modules/
-.env.*
 *.tgz
 
-# Folders projects
-/src/Models
-/src/Growers
+# Querychan devs files
+/database/migrations/
+/src/Models/
+/src/Growers/
