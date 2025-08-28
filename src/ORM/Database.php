@@ -20,7 +20,7 @@ class Database {
         else {
             self::$config = [
                 'driver'    => getenv('DB_DRIVER') ?: 'mysql',
-                'dbname'    => getenv('DB_DATABASE') ?: 'querychan_db',
+                'dbname'    => $_ENV['DB_DATABASE'] ?: 'querychan_db',
                 'user'      => getenv('DB_USERNAME') ?: 'root',
                 'password'  => getenv('DB_PASSWORD') ?: 'root',
                 'host'      => getenv('DB_HOST') ?: '127.0.0.1',
