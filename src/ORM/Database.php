@@ -83,8 +83,6 @@ class Database {
 
         $tables = $pdo->query($query)->fetchAll(PDO::FETCH_COLUMN);
 
-        var_dump($_ENV);
-
         return [
             'connected' => true,
             'driver' => $driver,

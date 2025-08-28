@@ -1,11 +1,21 @@
 #!/usr/bin/env php
 <?php
 
+use Dotenv\Dotenv;
+
 $autoload = __DIR__ . '/../vendor/autoload.php';
+$projectRoot = realpath(__DIR__ . '/..');
+
 if(!file_exists($autoload)) {
     $autoload = __DIR__ . "/../../../autoload.php";
+    $projectRoot = realpath(__DIR__ . "/../../..");
 }
-require_once $autoload;
+require_once $projectRoot . '/vendor/autoload.php';
+
+if(class_exists(Dotenv::class) && file_exists($projectRoot . '/.env')) {
+    $dotenv = Dotenv::createImmutable($projectRoot);
+    $dotenv->load();
+}
 
 use FunkyDuck\Querychan\CLI\CommandDispatcher;
 use FunkyDuck\Querychan\ORM\Database;
