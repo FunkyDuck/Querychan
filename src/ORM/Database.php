@@ -73,6 +73,8 @@ class Database {
         return [
             'connected' => true,
             'driver' => $driver,
+            'host' => $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?? 'undefined',
+            'port' => $_ENV['DB_PORT'] ?? getenv('DB_PORT') ?? 'undefined',
             'version' => $version,
             'tables' => $tables
         ];
