@@ -7,39 +7,69 @@ use FunkyDuck\NijiEcho\NijiEcho;
 use PDO;
 
 class Migrator {
-    public static function migrateModels(string $modelPath): void {
-        echo NijiEcho::info(":: Start Migration ::") . "\n";
-        $files = glob($modelPath . '/*.php');
+    public static function runMigration(string $migrationPath): void {
+        echo "\t" . NijiEcho::info(":: Start Migration ::") . "\n";
 
-        foreach ($files as $file) {
-            try {
-                require_once $file;
+        self::ensureMigrationsTableExists();
 
-                $filename = pathinfo($file, PATHINFO_FILENAME);
-                $parts = explode('-', $filename, 2);
-                $className = count($parts) === 2 ? $parts[1] : $filename;
+        $pdo = Database::get();
+        $ranMigration = $pdo->query("SELECT migration FROM migrations")->fetchAll(PDO::FETCH_COLUMN);
 
-                $fqcn = "Querychan\\Models\\$className";
+        $MigrationFiles = glob($migrationPath . '/*.php');
+        sort($MigrationFiles);
 
-                if (class_exists($fqcn)) {
-                    $model = new $fqcn();
+        $newMigrationsRun = false;
 
-                    if (method_exists($fqcn, 'migrate')) {
-                        $model->migrate();
-                    }
+        foreach ($MigrationFiles as $file) {
+            $migrationName = basename($file);
+
+            if(!in_array($migrationName, $ranMigration)) {
+                try {
+                    echo "\t" . NijiEcho::text("Migrating: $migrationName")->color('light_blue') . "\n";
+
+                    $migration = require($file);
+                    $migration->up();
+
+                    $stmt = $pdo->prepare("INSERT INTO migrations (migration) VALUES (?)");
+                    $stmt->execute([$migrationName]);
+
+                    $newMigrationsRun = true;
+                    
+                    echo NijiEcho::success("\tMigrate $migrationName successfully!") . "\n";
+                } catch (\Throwable $th) {
+                    echo NijiEcho::error("\t!! Fail to migrate: $migrationName") . "\n";
+                    echo NijiEcho::error("\tError: " . $th->getMessage()) . "\n";
+                    return;
                 }
-                echo NijiEcho::success("\tMigrate Table : $className") . "\n";
-            } catch (\Throwable $th) {
-                echo NijiEcho::error("\t!! Fail to migrate Table : $className") . "\n";
-                echo NijiEcho::error("\tError: " . $th->getMessage()) . "\n";
             }
         }
-        echo NijiEcho::info(":: End Migration ::") . "\n\n";
+        echo "\t" . NijiEcho::info(":: End Migration ::") . "\n";
+    }
+
+    protected static function ensureMigrationsTableExists(): void {
+        $db = Database::get();
+        $driver = $db->getAttribute(PDO::ATTR_DRIVER_NAME);
+
+        $idColumn = $driver === 'sqlite'
+            ? 'id INTEGER PRIMARY KEY AUTOINCREMENT'
+            : 'id INT AUTO_INCREMENT PRIMARY KEY';
+
+        $db->exec("CREATE TABLE IF NOT EXISTS migrations (
+            {$idColumn},
+            migration VARCHAR(255) NOT NULL,
+            batch INT NOT NULL DEFAULT 1
+        )");
     }
 
     public static function dropTables(): void {
         $db = Database::get();
-        $tables = $db->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+        $driver = $db->getAttribute(PDO::ATTR_DRIVER_NAME);
+
+        $query = $driver === 'sqlite'
+            ? "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'migrations'"
+            : "SHOW TABLES";
+
+        $tables = $db->query($query)->fetchAll(PDO::FETCH_COLUMN);
 
         foreach ($tables as $table) {
             $db->query("DROP TABLE IF EXISTS `$table`");
@@ -79,6 +109,6 @@ class Migrator {
                 echo NijiEcho::error("\tError: " . $th->getMessage()) . "\n";
             }
         }
-        echo NijiEcho::info(":: End Grower ::") . "\n\n";
+        echo "\t" . NijiEcho::info(":: End Grower ::") . "\n";
     }
 }

@@ -35,6 +35,9 @@ class CommandDispatcher {
         elseif(($cmd[0] === 'about' || $cmd[0] === 'version') && !isset($cmd[1])) {
             $this->about();
         }
+        elseif($cmd[0] === "help") {
+            $this->displayCommands(false);
+        }
         else {
             $this->displayCommands();
         }
@@ -74,7 +77,7 @@ class CommandDispatcher {
         );
         
         file_put_contents($filepath, $content);
-        echo "\t" . NijiEcho::success("Model [$modelName] created") . "\n\n";
+        echo "\t" . NijiEcho::success("Model [$modelName] created") . "\n";
         $migrationName = "create_{$lowerModelName}_table";
         $this->createMigration($migrationName);
     }
@@ -115,7 +118,7 @@ class CommandDispatcher {
         $content = str_replace('{{$tableName}}', $tableName, $template);
         
         file_put_contents($filepath, $content);
-        echo "\t" . NijiEcho::success("Migration [$name] created") . "\n\n";
+        echo "\t" . NijiEcho::success("Migration [$name] created") . "\n";
     }
     
     private function createGrower($name) {
@@ -156,14 +159,14 @@ class CommandDispatcher {
     }
 
     private function migrate() {
-        $modelsPath = getcwd() . '/src/Models';
+        $migrationsPath = getcwd() . '/database/migrations';
 
-        if(!is_dir($modelsPath)) {
+        if(!is_dir($migrationsPath)) {
             echo "!! No models directory found.\n";
             return;
         }
 
-        Migrator::migrateModels($modelsPath);
+        Migrator::runMigration($migrationsPath);
     }
 
     private function refresh() {
@@ -185,6 +188,8 @@ class CommandDispatcher {
     }
 
     private function status() {
+        $this->getLogo();
+        
         Database::connect();
         $info = Database::status();
         
@@ -204,6 +209,8 @@ class CommandDispatcher {
     }
     
     private function about() {
+        $this->getLogo();
+
         $version = Utils::getPackageVersion() ?? 'DEV';
         echo "\t" . NijiEcho::text("(=^‥^=) About Querychan")->color('light_green') . "\n";
         echo "\t" . NijiEcho::text("Developed by ") . NijiEcho::text("Loïc Jacques - FunkyDuck.")->color('light_blue') . "\n";
@@ -212,7 +219,29 @@ class CommandDispatcher {
         echo "\t" . NijiEcho::text("Making your DB kawaii since 2025 🍙")->color('cyan') . "\n";
     }
 
-    public function displayCommands() {
+    public function displayCommands(bool $badCommand = true) {
+        $this->getLogo();
+        
+        if($badCommand) {
+            echo "\t" . NijiEcho::text("!! COMMAND NOT FOUND !!")->color('white')->background('red') . "\n\n";
+        }
+        echo "\t" . NijiEcho::text(":::: Querychan CLI ::::")->color("green") . "\n\n";
+        
+        echo "\t" . NijiEcho::text("Commands you can run :")->color('white') . "\n";
+        echo "\t" . NijiEcho::text("create:model")->color("light_blue") . "\t\t" . NijiEcho::text("► Build a new Table Model") . "\n";
+        echo "\t" . NijiEcho::text("create:migration")->color("light_blue") . "\t" . NijiEcho::text("► Build a new Migration") . "\n";
+        echo "\t" . NijiEcho::text("create:grower")->color("light_blue") . "\t\t" . NijiEcho::text("► Make a new db grower (data filler)") . "\n";
+        echo "\t" . NijiEcho::text("migrate")->color("light_blue") . "\t\t\t" . NijiEcho::text("► Run migrations") . "\n";
+        echo "\t" . NijiEcho::text("migrate:refresh")->color("light_blue") . "\t\t" . NijiEcho::text("► Reset DB (DROP + CREATE + MIGRATE)") . "\n";
+        echo "\t" . NijiEcho::text("migrate:grower")->color("light_blue") . "\t\t" . NijiEcho::text("► Seed that DB (add data)") . "\n";
+        echo "\t" . NijiEcho::text("help")->color("light_blue") . "\t\t\t" . NijiEcho::text("► How to use Querychan") . "\n";
+        echo "\t" . NijiEcho::text("status")->color("light_blue") . "\t\t\t" . NijiEcho::text("► Check db status") . "\n";
+        echo "\t" . NijiEcho::text("about")->color("light_blue") . "\t\t\t" . NijiEcho::text("► About Querychan") . "\n";
+
+        return;
+    }
+
+    public function getLogo() {
         echo "\033[92m"; 
         echo <<<EOT
          _____                             _                                      
@@ -226,18 +255,6 @@ class CommandDispatcher {
         
         EOT;
         echo "\033[0m\n";
-        
-        echo "\t" . NijiEcho::text("!! COMMAND NOT FOUND !!")->color('white')->background('red') . "\n\n";
-        echo "\t" . NijiEcho::text(":::: Querychan CLI ::::")->color("green") . "\n\n";
-        
-        echo "\t" . NijiEcho::text("Commands you can run :")->color('white') . "\n";
-        echo "\t" . NijiEcho::text("create:model")->color("light_blue") . "\t" . NijiEcho::text("► Build a new Table Model") . "\n";
-        echo "\t" . NijiEcho::text("create:grower")->color("light_blue") . "\t" . NijiEcho::text("► Make a new db grower (data filler)") . "\n";
-        echo "\t" . NijiEcho::text("migrate")->color("light_blue") . "\t\t" . NijiEcho::text("► Run migrations") . "\n";
-        echo "\t" . NijiEcho::text("migrate:refresh")->color("light_blue") . "\t" . NijiEcho::text("► Reset DB (DROP + CREATE + MIGRATE)") . "\n";
-        echo "\t" . NijiEcho::text("migrate:grower")->color("light_blue") . "\t" . NijiEcho::text("► Seed that DB (add data)") . "\n";
-        echo "\t" . NijiEcho::text("status")->color("light_blue") . "\t\t" . NijiEcho::text("► Check db status") . "\n";
-        echo "\t" . NijiEcho::text("about")->color("light_blue") . "\t\t" . NijiEcho::text("► About Querychan") . "\n";
 
         return;
     }
