@@ -8,9 +8,9 @@ $projectRoot = realpath(__DIR__ . '/..');
 
 if(!file_exists($autoload)) {
     $autoload = __DIR__ . "/../../../autoload.php";
-    $projectRoot = realpath(__DIR__ . "/../../..");
+    $projectRoot = realpath(__DIR__ . "/../../../..");
 }
-require_once $projectRoot . '/vendor/autoload.php';
+require_once $projectRoot . '/vendor/autoload.php'; // Ligne 13
 
 if(class_exists(Dotenv::class) && file_exists($projectRoot . '/.env')) {
     $dotenv = Dotenv::createImmutable($projectRoot);
