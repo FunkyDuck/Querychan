@@ -7,31 +7,44 @@ use PDO;
 
 class Database {
     protected static ?PDO $connection = null;
+    private static array $config = [];
 
     public static function connect(?array $config = null): void {
+        if(self::$connection !== null) {
+            return;
+        }
+
         if($config) {
-            $driver   = $config['driver'];
-            $dbname   = $config['database'];
-            $user     = $config['user'] ?? null;
-            $password = $config['password'] ?? null;
+            self::$config = $config;
         } 
         else {
-            $driver   = getenv('DB_DRIVER') ?: 'mysql';
-            $dbname   = getenv('DB_DATABASE') ?: 'querychan_db';
-            $user     = getenv('DB_USERNAME') ?: 'root';
-            $password = getenv('DB_PASSWORD') ?: 'root';
+            self::$config = [
+                'driver'    => getenv('DB_DRIVER') ?: 'mysql',
+                'dbname'    => getenv('DB_DATABASE') ?: 'querychan_db',
+                'user'      => getenv('DB_USERNAME') ?: 'root',
+                'password'  => getenv('DB_PASSWORD') ?: 'root',
+                'host'      => getenv('DB_HOST') ?: '127.0.0.1',
+                'port'      => getenv('DB_PORT') ?: '3306',
+                'charset'   => 'utf8mb4'
+            ];
         }
-        $host     = getenv('DB_HOST') ?: '127.0.0.1';
-        $port     = getenv('DB_PORT') ?: '3306';
-        $charset  = 'utf8mb4';
         
-        if($driver === 'sqlite') {
-            $dsn = "sqlite:$dbname";
+        if(self::$config['driver'] === 'sqlite') {
+            $dsn = "sqlite:" . self::$config['dbname'];
             $user = null;
             $password = null;
         }
         else {
-            $dsn = "$driver:host=$host;port=$port;dbname=$dbname;charset=$charset";
+            $dsn = sprintf(
+                "%s:host=%s;port=%s;dbname=%s;charset=%s",
+                self::$config['driver'],
+                self::$config['host'],
+                self::$config['port'],
+                self::$config['dbname'],
+                self::$config['charset']
+            );
+            $user = self::$config['user'];
+            $password = self::$config['password'];
         }
         
         $options = [
@@ -70,11 +83,13 @@ class Database {
 
         $tables = $pdo->query($query)->fetchAll(PDO::FETCH_COLUMN);
 
+        var_dump($_ENV);
+
         return [
             'connected' => true,
             'driver' => $driver,
-            'host' => $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?? 'undefined',
-            'port' => $_ENV['DB_PORT'] ?? getenv('DB_PORT') ?? 'undefined',
+            'host' => self::$config['host'],
+            'port' => self::$config['port'],
             'version' => $version,
             'tables' => $tables
         ];
